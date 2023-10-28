@@ -1,0 +1,87 @@
+name: Build nightly images
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 5' # Run every friday at midnight
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out build configurations
+        uses: actions/checkout@v4
+
+      - name: Substitute placeholders in configs
+        run: |
+          find . -type f -name "*.cfg" -exec sed -i "s|HOME|$(echo $HOME)|;s|NPROC|$(nproc)|" {} +
+
+      - name: Install pmbootstrap from git
+        run: |
+          git clone --depth=1 https://git.sr.ht/~postmarketos/pmbootstrap
+          mkdir -p ~/.local/bin
+          ln -s "$PWD/pmbootstrap/pmbootstrap.py" ~/.local/bin/pmbootstrap
+          pmbootstrap --version
+
+      - name: Set up pmaports
+        run: |
+          echo -e '\n\n' | pmbootstrap init || true
+          cd ~/.local/var/pmbootstrap/cache_git/pmaports
+          git remote add sm7150 https://github.com/sm7150-mainline/pmaports.git
+          git fetch sm7150 master
+          git reset --hard sm7150/master
+
+      - name: Clone kernel sources
+        run: |
+          git clone https://github.com/sm7150-mainline/linux.git --single-branch --branch next --depth 1
+
+      - name: Choose any SM7150 device in pmbootstrap to build kernel
+        run: |
+          cp xiaomi-davinci.cfg ~/.config/pmbootstrap.cfg
+
+      - name: Compile kernel with envkernel
+        run: |
+          cd linux
+          shopt -s expand_aliases
+          source ../pmbootstrap/helpers/envkernel.sh
+          make defconfig sm7150.config
+          make -j$(nproc)
+          pmbootstrap build --envkernel linux-postmarketos-qcom-sm7150
+
+      - name: Create artifact directory
+        run: |
+          mkdir out
+
+      - name: Build xiaomi-davinci
+        run: |
+          cp xiaomi-davinci.cfg ~/.config/pmbootstrap.cfg
+          pmbootstrap install --password 147147
+          pmbootstrap export
+          cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-davinci.img
+          cp /tmp/postmarketOS-export/xiaomi-davinci.img out/rootfs-xiaomi-davinci.img
+          xz -T0 -9e -v out/rootfs-xiaomi-davinci.img
+          echo -e "n\nn\ny\n" | pmbootstrap zap
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: xiaomi-davinci
+          path: out/*-davinci.img*
+          retention-days: 7
+
+      - name: Build xiaomi-surya
+        run: |
+          cp xiaomi-surya.cfg ~/.config/pmbootstrap.cfg
+          pmbootstrap install --password 147147
+          pmbootstrap export
+          cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-surya.img
+          cp /tmp/postmarketOS-export/xiaomi-surya.img out/rootfs-xiaomi-surya.img
+          xz -T0 -9e -v out/rootfs-xiaomi-surya.img
+          echo -e "n\nn\ny\n" | pmbootstrap zap
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: xiaomi-surya
+          path: out/*-surya.img*
+          retention-days: 7
