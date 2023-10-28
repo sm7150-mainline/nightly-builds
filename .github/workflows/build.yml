@@ -85,3 +85,20 @@ jobs:
           name: xiaomi-surya
           path: out/*-surya.img*
           retention-days: 7
+
+      - name: Build xiaomi-sweet
+        run: |
+          cp xiaomi-sweet.cfg ~/.config/pmbootstrap.cfg
+          pmbootstrap install --password 147147
+          pmbootstrap export
+          cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-sweet.img
+          cp /tmp/postmarketOS-export/xiaomi-sweet.img out/rootfs-xiaomi-sweet.img
+          xz -T0 -9e -v out/rootfs-xiaomi-sweet.img
+          echo -e "n\nn\ny\n" | pmbootstrap zap
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: xiaomi-sweet
+          path: out/*-sweet.img*
+          retention-days: 7
