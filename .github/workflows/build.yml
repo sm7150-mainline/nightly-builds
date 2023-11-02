@@ -7,6 +7,10 @@ on:
 
 jobs:
   build-image:
+    strategy:
+      matrix:
+        version: ["next", "v6.6"]
+
     runs-on: ubuntu-latest
     steps:
       - name: Check out build configurations
@@ -33,7 +37,7 @@ jobs:
 
       - name: Clone kernel sources
         run: |
-          git clone https://github.com/sm7150-mainline/linux.git --single-branch --branch next --depth 1
+          git clone https://github.com/sm7150-mainline/linux.git --single-branch --branch ${{ matrix.version }} --depth 1
 
       - name: Choose any SM7150 device in pmbootstrap to build kernel
         run: |
@@ -65,7 +69,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: xiaomi-davinci
+          name: xiaomi-davinci-${{ matrix.version }}
           path: out/*-davinci.img*
           retention-days: 7
 
@@ -82,7 +86,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: xiaomi-surya
+          name: xiaomi-surya-${{ matrix.version }}
           path: out/*-surya.img*
           retention-days: 7
 
@@ -99,6 +103,23 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: xiaomi-sweet
+          name: xiaomi-sweet-${{ matrix.version }}
           path: out/*-sweet.img*
+          retention-days: 7
+
+      - name: Build xiaomi-toco
+        run: |
+          cp xiaomi-toco.cfg ~/.config/pmbootstrap.cfg
+          pmbootstrap install --password 147147
+          pmbootstrap export
+          cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-toco.img
+          cp /tmp/postmarketOS-export/xiaomi-toco.img out/rootfs-xiaomi-toco.img
+          xz -T0 -9e -v out/rootfs-xiaomi-toco.img
+          echo -e "n\nn\ny\n" | pmbootstrap zap
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: xiaomi-toco-${{ matrix.version }}
+          path: out/*-toco.img*
           retention-days: 7
