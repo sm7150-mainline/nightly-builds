@@ -31,7 +31,7 @@ jobs:
         run: |
           echo -e '\n\n' | pmbootstrap init || true
           cd ~/.local/var/pmbootstrap/cache_git/pmaports
-          git remote add sm7150 https://github.com/sm7150-mainline/pmaports.git
+          git remote add sm7150 https://github.com/cnnrduncan/pmaports-suryafix.git
           git fetch sm7150 master
           git reset --hard sm7150/master
 
