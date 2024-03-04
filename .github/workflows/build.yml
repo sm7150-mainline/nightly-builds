@@ -31,9 +31,9 @@ jobs:
         run: |
           echo -e '\n\n' | pmbootstrap init || true
           cd ~/.local/var/pmbootstrap/cache_git/pmaports
-          git remote add sm7150 https://github.com/cnnrduncan/pmaports-suryafix.git
-          git fetch sm7150 master
-          git reset --hard sm7150/master
+          git remote add pmaports https://gitlab.com/postmarketOS/pmaports
+          git fetch pmaports master
+          git reset --hard pmaports/master
 
       - name: Clone kernel sources
         run: |
