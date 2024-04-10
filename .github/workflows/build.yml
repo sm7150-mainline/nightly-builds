@@ -107,6 +107,23 @@ jobs:
           path: out/*-sweet.img*
           retention-days: 7
 
+      - name: Build xiaomi-sweet_k6a
+        run: |
+          cp xiaomi-sweet_k6a.cfg ~/.config/pmbootstrap.cfg
+          pmbootstrap install --password 147147
+          pmbootstrap export
+          cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-sweeet_k6a.img
+          cp /tmp/postmarketOS-export/xiaomi-sweet_k6a.img out/rootfs-xiaomi-sweet_k6a.img
+          xz -T0 -9e -v out/rootfs-xiaomi-sweet_k6a.img
+          echo -e "n\nn\ny\n" | pmbootstrap zap
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: xiaomi-sweet_k6a-${{ matrix.version }}
+          path: out/*-sweet_k6a.img*
+          retention-days: 7
+
       - name: Build xiaomi-toco
         run: |
           cp xiaomi-toco.cfg ~/.config/pmbootstrap.cfg
