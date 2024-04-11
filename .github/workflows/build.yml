@@ -5,11 +5,14 @@ on:
   schedule:
     - cron: '0 0 * * 5' # Run every friday at midnight
 
+env:
+  KERNEL_BRANCH: next
+
 jobs:
   build-image:
     strategy:
       matrix:
-        version: ["next", "v6.8.3"]
+        version: ["next", "default"]
 
     runs-on: ubuntu-latest
     steps:
@@ -32,12 +35,20 @@ jobs:
           echo -e '\n\n' | pmbootstrap init || true
           cd ~/.local/var/pmbootstrap/cache_git/pmaports
           git remote add sm7150 https://github.com/sm7150-mainline/pmaports.git
-          git fetch sm7150 master
-          git reset --hard sm7150/master
+          DEFAULT_BRANCH=$(git remote show sm7150 | awk '/HEAD branch/ {print $NF}')
+          git fetch sm7150 $DEFAULT_BRANCH
+          git reset --hard sm7150/$DEFAULT_BRANCH
+
+      - name: Check kernel branch
+        if: matrix.version == 'default'
+        run: |
+          DEFAULT_BRANCH=$(curl -s  https://api.github.com/repos/sm7150-mainline/linux | jq '.default_branch')
+          echo "Default branch is $DEFAULT_BRANCH"
+          echo "KERNEL_BRANCH=$DEFAULT_BRANCH" >> $GITHUB_ENV
 
       - name: Clone kernel sources
         run: |
-          git clone https://github.com/sm7150-mainline/linux.git --single-branch --branch ${{ matrix.version }} --depth 1
+          git clone https://github.com/sm7150-mainline/linux.git --single-branch --branch ${{ env.KERNEL_BRANCH }} --depth 1
 
       - name: Choose any SM7150 device in pmbootstrap to build kernel
         run: |
