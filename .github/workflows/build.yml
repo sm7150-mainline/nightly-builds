@@ -39,7 +39,7 @@ jobs:
           git fetch sm7150 $DEFAULT_BRANCH
           git reset --hard sm7150/$DEFAULT_BRANCH
 
-      - name: check kernel branch
+      - name: Check kernel branch
         if: matrix.version == 'default'
         run: |
           DEFAULT_BRANCH=$(curl -s  https://api.github.com/repos/sm7150-mainline/linux | jq '.default_branch')
