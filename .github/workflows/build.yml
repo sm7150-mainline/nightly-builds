@@ -78,9 +78,9 @@ jobs:
           echo -e "n\nn\ny\n" | pmbootstrap zap
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: xiaomi-davinci-${{ matrix.version }}
+          name: xiaomi-davinci-${{ env.KERNEL_BRANCH }}
           path: out/*-davinci.img*
           retention-days: 7
 
@@ -95,9 +95,9 @@ jobs:
           echo -e "n\nn\ny\n" | pmbootstrap zap
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: xiaomi-surya-${{ matrix.version }}
+          name: xiaomi-surya-${{ env.KERNEL_BRANCH }}
           path: out/*-surya.img*
           retention-days: 7
 
@@ -112,9 +112,9 @@ jobs:
           echo -e "n\nn\ny\n" | pmbootstrap zap
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: xiaomi-sweet-${{ matrix.version }}
+          name: xiaomi-sweet-${{ env.KERNEL_BRANCH }}
           path: out/*-sweet.img*
           retention-days: 7
 
@@ -129,9 +129,9 @@ jobs:
           echo -e "n\nn\ny\n" | pmbootstrap zap
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: xiaomi-sweet_k6a-${{ matrix.version }}
+          name: xiaomi-sweet_k6a-${{ env.KERNEL_BRANCH }}
           path: out/*-sweet_k6a.img*
           retention-days: 7
 
@@ -146,8 +146,8 @@ jobs:
           echo -e "n\nn\ny\n" | pmbootstrap zap
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: xiaomi-toco-${{ matrix.version }}
+          name: xiaomi-toco-${{ env.KERNEL_BRANCH }}
           path: out/*-toco.img*
           retention-days: 7
